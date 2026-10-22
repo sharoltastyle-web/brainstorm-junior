@@ -8,8 +8,17 @@ import styles from './TriviaPage.module.css';
 const MAX_TOPIC_LENGTH = 120;
 
 export function TriviaPage() {
-  const { topic, setTopic, status, question, selectedOptionId, message, requestQuestion, selectAnswer } =
-    useGame();
+  const {
+    topic,
+    setTopic,
+    status,
+    question,
+    selectedOptionId,
+    message,
+    requestQuestion,
+    requestMoreSameTopic,
+    selectAnswer,
+  } = useGame();
   const loading = status === 'loading';
   const answered = status === 'answered' && question !== null && selectedOptionId !== null;
   const isCorrect = answered ? selectedOptionId === question.correctOptionId : null;
@@ -74,11 +83,21 @@ export function TriviaPage() {
             />
             {/* The solution and explanation are rendered only after answering. */}
             {answered && isCorrect !== null && (
-              <FeedbackCard
-                isCorrect={isCorrect}
-                correctAnswer={correctAnswer}
-                explanation={question.explanation}
-              />
+              <>
+                <FeedbackCard
+                  isCorrect={isCorrect}
+                  correctAnswer={correctAnswer}
+                  explanation={question.explanation}
+                />
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  className={styles.moreButton}
+                  onClick={() => void requestMoreSameTopic()}
+                >
+                  עוד שאלה באותו נושא
+                </Button>
+              </>
             )}
           </div>
         )}

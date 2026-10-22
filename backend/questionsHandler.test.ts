@@ -62,6 +62,17 @@ describe('handleQuestions', () => {
     expect(errorCode(result.json)).toBe('invalid_request');
   });
 
+  it('accepts up to 20 previous questions and passes them to the pipeline', async () => {
+    const { ai, calls } = fakeAi([validOutput]);
+    const previousQuestions = Array.from({ length: 20 }, (_, i) => `שאלה מספר ${i + 1}`);
+    const result = await handleQuestions(
+      withBody({ ageGroup: '9-12', topic: 'חלל', requestId: 'r', previousQuestions }),
+      { ai },
+    );
+    expect(result.status).toBe(200);
+    expect(calls.previousQuestions[0]).toEqual(previousQuestions);
+  });
+
   it('asks for a topic when it is blank, and to shorten it when too long', async () => {
     const { ai } = fakeAi([validOutput]);
     const blank = await handleQuestions(withBody({ ageGroup: '6-8', topic: '   ', requestId: 'r' }), { ai });

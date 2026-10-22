@@ -140,9 +140,13 @@ export async function handleQuestions(
   }
 
   const ai = deps.ai ?? (defaultAi ??= createOpenAiClient());
-  const result = await generateTriviaQuestion(ai, input.data.ageGroup, input.data.topic, {
-    deadlineMs: deps.deadlineMs,
-  });
+  const result = await generateTriviaQuestion(
+    ai,
+    input.data.ageGroup,
+    input.data.topic,
+    { deadlineMs: deps.deadlineMs },
+    input.data.previousQuestions ?? [],
+  );
   logResult(result.ok ? 'ok' : result.code, startedAt, result.attempts, result.tokens);
 
   if (!result.ok) {

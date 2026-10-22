@@ -5,6 +5,7 @@ import {
   duplicateOptions,
   emptyQuestion,
   missingExplanation,
+  otherValidOutput,
   threeOptions,
   unclearTopic,
   unsuitableTopic,
@@ -13,7 +14,8 @@ import {
 import { AiError, toAiError } from './openaiClient.ts';
 import { fakeAi } from './testing/fakeAi.ts';
 import { generateTriviaQuestion, shuffleQuestion } from './triviaService.ts';
-import { validQuestionSchema } from './questionSchema.ts';
+import { normalizeForCompare, validQuestionSchema } from './questionSchema.ts';
+import { buildUserInput } from './prompts.ts';
 
 describe('generateTriviaQuestion', () => {
   it('returns a valid, shuffled question whose correct id points at the right answer', async () => {
@@ -102,6 +104,69 @@ describe('generateTriviaQuestion', () => {
   ])('maps provider failures to %s', async (code, error) => {
     const { ai } = fakeAi([error]);
     expect(await generateTriviaQuestion(ai, '6-8', 'חלל')).toMatchObject({ ok: false, code });
+  });
+});
+
+describe('previous questions', () => {
+  const previous = [validOutput.question, 'מה צבע השמיים?'];
+
+  it('passes them to the model and moderates them together with the topic', async () => {
+    const { ai, calls } = fakeAi([otherValidOutput]);
+    const result = await generateTriviaQuestion(ai, '9-12', 'חלל', {}, [' מה  צבע השמיים? ', '  ']);
+    expect(result.ok).toBe(true);
+    expect(calls.previousQuestions[0]).toEqual(['מה צבע השמיים?']);
+    expect(calls.moderatedTexts[0]).toEqual(['חלל', 'מה צבע השמיים?']);
+  });
+
+  it('stops before generation when a previous question is flagged', async () => {
+    const { ai, calls } = fakeAi([validOutput], { input: true });
+    const result = await generateTriviaQuestion(ai, '9-12', 'חלל', {}, previous);
+    expect(result).toMatchObject({ ok: false, code: 'unsuitable_topic' });
+    expect(calls.generate).toBe(0);
+  });
+
+  it('drops a repeated question (spacing and punctuation differences) and uses the fallback attempt', async () => {
+    const repeat = { ...validOutput, question: '  מהו כוכב-הלכת הגדול ביותר במערכת  השמש ' };
+    const { ai, calls } = fakeAi([repeat, otherValidOutput]);
+    const result = await generateTriviaQuestion(ai, '9-12', 'חלל', {}, previous);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.question.prompt).toBe(otherValidOutput.question);
+    expect(calls.generate).toBe(2);
+  });
+
+  it('gives up after two repeated candidates without a third call', async () => {
+    const { ai, calls } = fakeAi([validOutput, validOutput, otherValidOutput]);
+    const result = await generateTriviaQuestion(ai, '9-12', 'חלל', {}, previous);
+    expect(result).toMatchObject({ ok: false, code: 'no_valid_question', attempts: 2 });
+    expect(calls.generate).toBe(2);
+  });
+});
+
+describe('normalizeForCompare', () => {
+  it.each([
+    ['מהו כוכב הלכת הגדול ביותר?', '  מהו כוכב  הלכת הגדול ביותר '],
+    ['מהו כוכב הלכת הגדול ביותר?', 'מהו כוכב-הלכת, הגדול ביותר.'],
+    ['מה זה "צדק"?', 'מה זה ״צדק״'],
+    ['איזו חיה היא ג\'ירפה?', 'איזו חיה היא ג׳ירפה'],
+    ['שָׁלוֹם עוֹלָם', 'שלום עולם'],
+    ['What is DNA?', 'what is dna'],
+  ])('treats "%s" and "%s" as the same question', (a, b) => {
+    expect(normalizeForCompare(a)).toBe(normalizeForCompare(b));
+  });
+
+  it('keeps different questions different', () => {
+    expect(normalizeForCompare('מהו כוכב הלכת הגדול ביותר?')).not.toBe(
+      normalizeForCompare('מהו כוכב הלכת הקטן ביותר?'),
+    );
+  });
+});
+
+describe('buildUserInput', () => {
+  it('adds the previous questions block only when there are previous questions', () => {
+    expect(buildUserInput('חלל')).not.toContain('<previous_questions>');
+    const input = buildUserInput('חלל', ['שאלה א', 'שאלה ב']);
+    expect(input).toContain('<topic>חלל</topic>');
+    expect(input).toContain('<previous_questions>\nשאלה א\nשאלה ב\n</previous_questions>');
   });
 });
 

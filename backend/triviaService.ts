@@ -7,6 +7,7 @@ import {
 } from './config.ts';
 import { AiError, toAiError, type AiClient } from './openaiClient.ts';
 import {
+  normalizeForCompare,
   normalizeText,
   validQuestionSchema,
   type AgeGroup,
@@ -61,12 +62,13 @@ export function shuffleQuestion(candidate: ValidQuestion, random: () => number =
 }
 
 // Pipeline per ARCHITECTURE.md §6: normalize → input moderation → generate → Zod → output moderation
-// → at most one fallback attempt → shuffle. Duplicate checks against previous questions arrive in M3.
+// → duplicate check against previous questions → at most one fallback attempt → shuffle.
 export async function generateTriviaQuestion(
   ai: AiClient,
   ageGroup: AgeGroup,
   rawTopic: string,
   options: TriviaOptions = {},
+  rawPreviousQuestions: string[] = [],
 ): Promise<TriviaResult> {
   const deadline = Date.now() + (options.deadlineMs ?? TOTAL_DEADLINE_MS);
   const callTimeout = options.callTimeoutMs ?? MODEL_CALL_TIMEOUT_MS;
@@ -78,6 +80,10 @@ export async function generateTriviaQuestion(
   if (!topic) return fail('empty_topic');
   if (topic.length > MAX_TOPIC_LENGTH) return fail('topic_too_long');
 
+  // Previous questions come from the client, so they are moderated like the topic.
+  const previousQuestions = rawPreviousQuestions.map(normalizeText).filter(Boolean);
+  const previousKeys = new Set(previousQuestions.map(normalizeForCompare));
+
   // Each call gets the per-call timeout, capped by what is left of the total deadline.
   const callSignal = () => {
     const remaining = deadline - Date.now();
@@ -86,11 +92,11 @@ export async function generateTriviaQuestion(
   };
 
   try {
-    if (await ai.moderate([topic], callSignal())) return fail('unsuitable_topic');
+    if (await ai.moderate([topic, ...previousQuestions], callSignal())) return fail('unsuitable_topic');
 
     while (attempts < MAX_GENERATION_ATTEMPTS) {
       attempts++;
-      const result = await ai.generate(ageGroup, topic, callSignal());
+      const result = await ai.generate(ageGroup, topic, previousQuestions, callSignal());
       tokens += result.tokens;
       const output = result.output;
       if (output?.status === 'unsuitable_topic') return fail('unsuitable_topic');
@@ -99,6 +105,8 @@ export async function generateTriviaQuestion(
       const parsed = validQuestionSchema.safeParse(output);
       if (!parsed.success) continue;
       const candidate = parsed.data;
+      // A repeat of a shown question counts as an invalid candidate (uses up the attempt).
+      if (previousKeys.has(normalizeForCompare(candidate.question))) continue;
 
       const flagged = await ai.moderate(
         [candidate.question, ...candidate.options, candidate.explanation],

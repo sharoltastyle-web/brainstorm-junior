@@ -9,7 +9,7 @@ export const questionRequestSchema = z.object({
   ageGroup: z.enum(AGE_GROUPS),
   topic: z.string().max(1000),
   requestId: z.string().min(1).max(100),
-  // Used from M3; accepted and ignored in M2.
+  // Recent questions already shown on this topic: a hint for the model and a duplicate check.
   previousQuestions: z.array(z.string().max(500)).max(MAX_PREVIOUS_QUESTIONS).optional(),
 });
 export type QuestionRequest = z.infer<typeof questionRequestSchema>;
@@ -17,6 +17,18 @@ export type QuestionRequest = z.infer<typeof questionRequestSchema>;
 // Collapses whitespace and Unicode forms so near-identical strings compare equal.
 export function normalizeText(text: string): string {
   return text.normalize('NFC').replace(/\s+/g, ' ').trim();
+}
+
+// Duplicate detection key: also drops niqqud, punctuation, symbols and letter case.
+// Must stay identical to src/game/seen.ts (the frontend cannot import backend modules).
+export function normalizeForCompare(text: string): string {
+  return text
+    .normalize('NFC')
+    .replace(/\p{M}/gu, '')
+    .replace(/[\p{P}\p{S}]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
 // Raw model output as enforced by Structured Outputs (strict JSON Schema below).

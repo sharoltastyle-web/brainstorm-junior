@@ -8,12 +8,18 @@ export function fakeAi(
   steps: GenerateStep[],
   moderation: { input?: boolean; output?: boolean[] } = {},
 ) {
-  const calls = { generate: 0, moderate: 0, moderatedTexts: [] as string[][] };
+  const calls = {
+    generate: 0,
+    moderate: 0,
+    moderatedTexts: [] as string[][],
+    previousQuestions: [] as string[][],
+  };
   let outputModerations = 0;
   const ai: AiClient = {
-    generate(_ageGroup, _topic, signal) {
+    generate(_ageGroup, _topic, previousQuestions, signal) {
       const step = steps[Math.min(calls.generate, steps.length - 1)];
       calls.generate++;
+      calls.previousQuestions.push(previousQuestions);
       if (step === 'hang') {
         return new Promise<GenerationResult>((_resolve, reject) => {
           signal.addEventListener('abort', () => reject(signal.reason));

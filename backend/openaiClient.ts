@@ -31,7 +31,12 @@ export interface GenerationResult {
 
 // Injectable AI boundary so tests can use fixtures without network or a key.
 export interface AiClient {
-  generate(ageGroup: AgeGroup, topic: string, signal: AbortSignal): Promise<GenerationResult>;
+  generate(
+    ageGroup: AgeGroup,
+    topic: string,
+    previousQuestions: string[],
+    signal: AbortSignal,
+  ): Promise<GenerationResult>;
   // Returns true when any of the texts is flagged.
   moderate(texts: string[], signal: AbortSignal): Promise<boolean>;
 }
@@ -58,14 +63,14 @@ export function createOpenAiClient(): AiClient {
   const getClient = () => (client ??= new OpenAI({ maxRetries: 0 }));
 
   return {
-    async generate(ageGroup, topic, signal) {
+    async generate(ageGroup, topic, previousQuestions, signal) {
       try {
         const response = await getClient().responses.create(
           {
             model: MODEL,
             store: false,
             instructions: buildInstructions(ageGroup),
-            input: buildUserInput(topic),
+            input: buildUserInput(topic, previousQuestions),
             max_output_tokens: MAX_OUTPUT_TOKENS,
             reasoning: { effort: REASONING_EFFORT },
             text: {

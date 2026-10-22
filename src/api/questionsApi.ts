@@ -15,7 +15,19 @@ export interface Question {
 
 export type FetchQuestionResult = { ok: true; question: Question } | { ok: false; message: string };
 
+export interface QuestionRequest {
+  ageGroup: AgeGroup;
+  topic: string;
+  requestId: string;
+  previousQuestions: string[];
+}
+
 export const GENERIC_ERROR = 'משהו השתבש. נסו שוב.';
+export const OFFLINE_ERROR = 'כדי לקבל שאלה, צריך להתחבר לאינטרנט.';
+
+export function isOffline(): boolean {
+  return typeof navigator !== 'undefined' && navigator.onLine === false;
+}
 // Slightly above the server's 30s deadline, so loading never hangs.
 export const CLIENT_TIMEOUT_MS = 35_000;
 
@@ -34,14 +46,14 @@ function isQuestion(data: unknown): data is Question {
   );
 }
 
-export async function fetchQuestion(ageGroup: AgeGroup, topic: string): Promise<FetchQuestionResult> {
+export async function fetchQuestion(request: QuestionRequest): Promise<FetchQuestionResult> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
   try {
     const response = await fetch('/api/v1/questions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ageGroup, topic, requestId: crypto.randomUUID() }),
+      body: JSON.stringify(request),
       signal: controller.signal,
     });
     const data: unknown = await response.json().catch(() => null);
@@ -54,7 +66,8 @@ export async function fetchQuestion(ageGroup: AgeGroup, topic: string): Promise<
         : null;
     return { ok: false, message: typeof message === 'string' ? message : GENERIC_ERROR };
   } catch {
-    return { ok: false, message: GENERIC_ERROR };
+    // A network failure while the browser is offline gets the connection message.
+    return { ok: false, message: isOffline() ? OFFLINE_ERROR : GENERIC_ERROR };
   } finally {
     clearTimeout(timer);
   }

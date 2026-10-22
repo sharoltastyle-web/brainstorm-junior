@@ -9,6 +9,14 @@ export const validOutput: ModelOutput = {
   explanation: 'צדק גדול מכדור הארץ פי 11 בקוטר.',
 };
 
+export const otherValidOutput: ModelOutput = {
+  status: 'ok',
+  question: 'איזה כוכב לכת מכונה "הכוכב האדום"?',
+  options: ['מאדים', 'צדק', 'שבתאי', 'חמה'],
+  correctIndex: 0,
+  explanation: 'מאדים נראה אדום בגלל חלודה שיש באדמה שלו.',
+};
+
 export const missingExplanation: ModelOutput = { ...validOutput, explanation: '' };
 export const threeOptions: ModelOutput = { ...validOutput, options: ['צדק', 'מאדים', 'נוגה'] };
 export const correctIndexOutOfRange: ModelOutput = { ...validOutput, correctIndex: 4 };

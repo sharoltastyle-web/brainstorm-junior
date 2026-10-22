@@ -69,6 +69,10 @@
   gap: var(--space-2);
 }
 
+.moreButton {
+  margin-top: var(--space-1);
+}
+
 .prompt {
   font: var(--text-subheading);
   font-weight: 700;
