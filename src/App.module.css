@@ -1,0 +1,14 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-3) var(--space-2);
+  /* Keep content scrollable above the fixed bottom navigation. */
+  padding-bottom: calc(var(--nav-height) + var(--space-3) + env(safe-area-inset-bottom));
+}

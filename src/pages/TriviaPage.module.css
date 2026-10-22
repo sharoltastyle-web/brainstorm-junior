@@ -1,0 +1,64 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font: var(--text-heading);
+  text-align: center;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  background: rgb(255 255 255 / 0.92);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 18px rgb(16 42 104 / 0.1);
+}
+
+.topicForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.topicLabel {
+  font: var(--text-subheading);
+}
+
+.topicRow {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.topicInput {
+  flex: 1;
+  min-width: 0;
+  height: var(--input-height);
+  padding: 0 var(--space-2);
+  background: var(--white);
+  border: var(--outline) solid rgb(16 42 104 / 0.25);
+  border-radius: var(--radius-sm);
+  font: var(--text-body);
+  text-align: right;
+}
+
+.topicInput:focus-visible {
+  border-color: var(--sky);
+}
+
+.askButton {
+  flex: none;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font: var(--text-label);
+  font-weight: 700;
+}
+
+.status {
+  font: var(--text-body);
+  font-weight: 600;
+}
