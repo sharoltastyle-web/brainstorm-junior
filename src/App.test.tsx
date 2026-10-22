@@ -93,25 +93,4 @@ describe('trivia topic', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
   });
-
-  it('sends the age group and topic to the server and shows its message', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(
-        JSON.stringify({ error: { code: 'not_available_yet', message: 'יצירת שאלות תהיה זמינה בקרוב.' } }),
-        { status: 503, headers: { 'Content-Type': 'application/json' } },
-      ),
-    );
-    renderApp('/');
-    await userEvent.click(screen.getByRole('radio', { name: '9–12' }));
-    await userEvent.click(screen.getByRole('button', { name: 'מתחילים לשחק' }));
-    await userEvent.type(screen.getByLabelText('על איזה נושא נשחק?'), ' חלל ');
-    await userEvent.click(screen.getByRole('button', { name: 'תנו לי שאלה' }));
-
-    expect(await screen.findByRole('alert')).toHaveTextContent('יצירת שאלות תהיה זמינה בקרוב.');
-    const [url, init] = fetchSpy.mock.calls[0];
-    expect(url).toBe('/api/v1/questions');
-    const body = JSON.parse(String(init?.body));
-    expect(body).toMatchObject({ ageGroup: '9-12', topic: 'חלל' });
-    fetchSpy.mockRestore();
-  });
 });

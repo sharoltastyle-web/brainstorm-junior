@@ -59,3 +59,4 @@
 > Claude ממלא זאת ברגע שהאפליקציה יכולה לרוץ (בדרך כלל בסיום Milestone 1), ומעדכן אם משהו משתנה.
 - **הרצה (dev):** `npm run dev` (http://localhost:5173)
 - **בדיקות (test):** `npm test` (וגם `npm run typecheck`, `npm run lint`, `npm run build`, `npm run check:bundle`)
+- **בדיקת זמינות המודל:** `npm run check:model` (דורש מפתח ב־`backend/.env`)

@@ -8,7 +8,7 @@ function Probe() {
   const location = useLocation();
   const { ageGroup } = useGame();
   return (
-    <output data-testid="probe" data-path={location.pathname} data-age={ageGroup ?? ''} />
+    <output aria-hidden="true" data-testid="probe" data-path={location.pathname} data-age={ageGroup ?? ''} />
   );
 }
 

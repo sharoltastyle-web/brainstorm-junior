@@ -1,0 +1,59 @@
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: var(--outline) solid transparent;
+  border-radius: var(--radius-md);
+  text-align: right;
+}
+
+.wrong {
+  background: #fde4ec;
+  border-color: #f7b3c9;
+}
+
+.correct {
+  background: #e9f8d8;
+  border-color: #b7e08a;
+}
+
+.icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--white);
+  font: 700 20px/1 var(--font-ui);
+}
+
+.wrong .icon {
+  background: #e5336f;
+}
+
+.correct .icon {
+  background: #3f8a17;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.headline {
+  font: var(--text-subheading);
+  font-weight: 700;
+}
+
+.answer {
+  font: var(--text-label);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.explanation {
+  margin-top: var(--space-1);
+  font: var(--text-body);
+}

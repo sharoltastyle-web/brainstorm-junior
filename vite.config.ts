@@ -28,9 +28,11 @@ async function questionsMiddleware(
 ): Promise<void> {
   if (req.url?.split('?')[0] !== QUESTIONS_PATH) return next();
   const body = req.method === 'POST' ? await readBody(req) : '';
-  const result = handleQuestions({
+  const result = await handleQuestions({
     method: req.method ?? 'GET',
     contentType: req.headers['content-type'] ?? null,
+    origin: req.headers.origin ?? null,
+    host: req.headers.host ?? null,
     body,
   });
   res.statusCode = result.status;
@@ -44,11 +46,11 @@ function localApi(): Plugin {
     name: 'local-api',
     configureServer(server) {
       loadServerEnv();
-      server.middlewares.use((req, res, next) => void questionsMiddleware(req, res, next));
+      server.middlewares.use((req, res, next) => void questionsMiddleware(req, res, next).catch(next));
     },
     configurePreviewServer(server) {
       loadServerEnv();
-      server.middlewares.use((req, res, next) => void questionsMiddleware(req, res, next));
+      server.middlewares.use((req, res, next) => void questionsMiddleware(req, res, next).catch(next));
     },
   };
 }

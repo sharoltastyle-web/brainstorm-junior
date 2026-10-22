@@ -1,44 +1,23 @@
-import { useState, type FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import { AnswerOptions } from '../components/AnswerOptions';
 import { Button } from '../components/Button';
+import { FeedbackCard } from '../components/FeedbackCard';
 import { useGame } from '../state/GameContext';
 import styles from './TriviaPage.module.css';
 
 const MAX_TOPIC_LENGTH = 120;
-const GENERIC_ERROR = 'משהו השתבש. נסו שוב.';
 
 export function TriviaPage() {
-  const { ageGroup, topic, setTopic } = useGame();
-  const [message, setMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { topic, setTopic, status, question, selectedOptionId, message, requestQuestion, selectAnswer } =
+    useGame();
+  const loading = status === 'loading';
+  const answered = status === 'answered' && question !== null && selectedOptionId !== null;
+  const isCorrect = answered ? selectedOptionId === question.correctOptionId : null;
+  const correctAnswer = question?.options.find((option) => option.id === question.correctOptionId)?.text ?? '';
 
-  async function requestQuestion(event: FormEvent) {
+  function onSubmit(event: FormEvent) {
     event.preventDefault();
-    if (loading) return;
-    const trimmed = topic.trim();
-    if (!trimmed) {
-      setMessage('צריך להקליד נושא כדי לקבל שאלה.');
-      return;
-    }
-    setLoading(true);
-    setMessage(null);
-    try {
-      // M1: the endpoint only confirms the frontend reaches the backend; questions arrive in M2.
-      const response = await fetch('/api/v1/questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ageGroup, topic: trimmed, requestId: crypto.randomUUID() }),
-      });
-      const data: unknown = await response.json().catch(() => null);
-      const errorMessage =
-        data && typeof data === 'object' && 'error' in data
-          ? (data as { error: { message?: unknown } }).error.message
-          : null;
-      setMessage(typeof errorMessage === 'string' ? errorMessage : GENERIC_ERROR);
-    } catch {
-      setMessage(GENERIC_ERROR);
-    } finally {
-      setLoading(false);
-    }
+    void requestQuestion();
   }
 
   return (
@@ -46,7 +25,7 @@ export function TriviaPage() {
       <h1 className={styles.title}>שאלות טריוויה</h1>
 
       <section className={styles.panel}>
-        <form className={styles.topicForm} onSubmit={requestQuestion} noValidate>
+        <form className={styles.topicForm} onSubmit={onSubmit} noValidate>
           <label htmlFor="topic" className={styles.topicLabel}>
             על איזה נושא נשחק?
           </label>
@@ -60,7 +39,11 @@ export function TriviaPage() {
               autoComplete="off"
               onChange={(event) => setTopic(event.target.value)}
             />
-            <Button type="submit" className={styles.askButton} disabled={loading}>
+            <Button
+              type="submit"
+              className={styles.askButton}
+              disabled={loading || status === 'awaiting_answer'}
+            >
               תנו לי שאלה
             </Button>
           </div>
@@ -75,6 +58,29 @@ export function TriviaPage() {
           <p className={styles.status} role="alert">
             {message}
           </p>
+        )}
+
+        {question && (status === 'awaiting_answer' || status === 'answered') && (
+          <div className={styles.question}>
+            <h2 id="question-prompt" className={styles.prompt}>
+              {question.prompt}
+            </h2>
+            <AnswerOptions
+              labelledBy="question-prompt"
+              options={question.options}
+              selectedOptionId={selectedOptionId}
+              isCorrect={isCorrect}
+              onSelect={selectAnswer}
+            />
+            {/* The solution and explanation are rendered only after answering. */}
+            {answered && isCorrect !== null && (
+              <FeedbackCard
+                isCorrect={isCorrect}
+                correctAnswer={correctAnswer}
+                explanation={question.explanation}
+              />
+            )}
+          </div>
         )}
       </section>
     </div>

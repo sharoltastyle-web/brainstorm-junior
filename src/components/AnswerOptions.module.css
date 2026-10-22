@@ -1,0 +1,79 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 56px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--white);
+  border: var(--outline) solid rgb(16 42 104 / 0.2);
+  border-radius: var(--radius-sm);
+  font: var(--text-body);
+  text-align: right;
+  cursor: pointer;
+}
+
+.group:disabled .card {
+  cursor: default;
+}
+
+.card:has(.radio:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+/* Custom radio so the locked (disabled) state keeps the mockup's filled look instead of browser grey. */
+.radio {
+  --dot: var(--navy);
+  flex: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  background: var(--white);
+  border: var(--outline) solid var(--navy);
+  border-radius: 50%;
+}
+
+.radio:checked {
+  background: radial-gradient(circle, var(--dot) 0 6px, var(--white) 6.5px);
+}
+
+.radio:focus-visible {
+  outline: none;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Light tints matched to the answer card and feedback samples in style-guide.png / mockups.png. */
+.wrong {
+  background: #fde4ec;
+  border-color: var(--pink);
+}
+
+.wrong .radio {
+  --dot: #e5336f;
+  border-color: #e5336f;
+}
+
+.correct {
+  background: #e9f8d8;
+  border-color: #5ea82a;
+}
+
+.correct .radio {
+  --dot: #3f8a17;
+  border-color: #3f8a17;
+}
