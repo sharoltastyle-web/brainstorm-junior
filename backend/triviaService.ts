@@ -4,8 +4,8 @@ import {
   MAX_TOPIC_LENGTH,
   MODEL_CALL_TIMEOUT_MS,
   TOTAL_DEADLINE_MS,
-} from './config.ts';
-import { AiError, toAiError, type AiClient } from './openaiClient.ts';
+} from './config.js';
+import { AiError, toAiError, type AiClient } from './openaiClient.js';
 import {
   normalizeForCompare,
   normalizeText,
@@ -13,7 +13,7 @@ import {
   type AgeGroup,
   type QuestionOption,
   type ValidQuestion,
-} from './questionSchema.ts';
+} from './questionSchema.js';
 
 export type TriviaErrorCode =
   | 'empty_topic'

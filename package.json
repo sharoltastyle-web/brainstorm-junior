@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "vite",
@@ -16,7 +16,8 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:model": "node scripts/check-model.mjs",
     "icons": "pwa-assets-generator",
-    "check:pwa": "node scripts/check-pwa.mjs"
+    "check:pwa": "node scripts/check-pwa.mjs",
+    "check:live": "node scripts/check-live.mjs"
   },
   "dependencies": {
     "@fontsource/nunito-sans": "^5.3.0",

@@ -1,5 +1,5 @@
-import type { AiClient, GenerationResult } from '../openaiClient.ts';
-import type { ModelOutput } from '../questionSchema.ts';
+import type { AiClient, GenerationResult } from '../openaiClient.js';
+import type { ModelOutput } from '../questionSchema.js';
 
 export type GenerateStep = ModelOutput | null | Error | 'hang';
 

@@ -1,7 +1,7 @@
 // @vitest-environment node
-import { validOutput, threeOptions } from './fixtures/modelOutputs.ts';
-import { handleQuestions, MAX_BODY_BYTES, type HandlerRequest } from './questionsHandler.ts';
-import { fakeAi } from './testing/fakeAi.ts';
+import { validOutput, threeOptions } from './fixtures/modelOutputs.js';
+import { handleQuestions, MAX_BODY_BYTES, type HandlerRequest } from './questionsHandler.js';
+import { fakeAi } from './testing/fakeAi.js';
 
 const FAKE_KEY = 'sk-test-fake-key-for-unit-tests-only';
 const validRequest: HandlerRequest = {

@@ -1,4 +1,4 @@
-import { handleQuestions } from '../../backend/questionsHandler.ts';
+import { handleQuestions } from '../../backend/questionsHandler.js';
 
 // Vercel Function adapter (Web standard Request/Response). Deployed in M5.
 async function handle(request: Request): Promise<Response> {

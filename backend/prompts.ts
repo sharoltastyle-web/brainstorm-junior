@@ -1,4 +1,4 @@
-import type { AgeGroup } from './questionSchema.ts';
+import type { AgeGroup } from './questionSchema.js';
 
 const COMMON_RULES = `
 אתה כותב שאלות טריוויה לילדים עבור המשחק "BrainStorm ג'וניור".

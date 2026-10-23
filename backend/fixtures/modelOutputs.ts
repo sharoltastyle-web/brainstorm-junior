@@ -1,4 +1,4 @@
-import type { ModelOutput } from '../questionSchema.ts';
+import type { ModelOutput } from '../questionSchema.js';
 
 // Synthetic model outputs for tests only. Not a question bank for the product.
 export const validOutput: ModelOutput = {

@@ -2,7 +2,7 @@
 import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hasOpenAiKey, loadServerEnv } from './env.ts';
+import { hasOpenAiKey, loadServerEnv } from './env.js';
 
 describe('server env loading', () => {
   const originalKey = process.env.OPENAI_API_KEY;

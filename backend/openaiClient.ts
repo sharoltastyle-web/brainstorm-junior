@@ -4,14 +4,14 @@ import {
   MODEL,
   MODERATION_MODEL,
   REASONING_EFFORT,
-} from './config.ts';
-import { buildInstructions, buildUserInput } from './prompts.ts';
+} from './config.js';
+import { buildInstructions, buildUserInput } from './prompts.js';
 import {
   MODEL_OUTPUT_JSON_SCHEMA,
   modelOutputSchema,
   type AgeGroup,
   type ModelOutput,
-} from './questionSchema.ts';
+} from './questionSchema.js';
 
 export type AiErrorKind = 'timeout' | 'rate_limited' | 'budget_exhausted' | 'provider_error';
 

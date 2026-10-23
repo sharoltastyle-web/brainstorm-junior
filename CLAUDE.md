@@ -62,3 +62,5 @@
 - **בדיקות (test):** `npm test` (וגם `npm run typecheck`, `npm run lint`, `npm run build`, `npm run check:bundle`, `npm run check:pwa`)
 - **יצירת אייקונים מחדש:** `npm run icons` (אחרי החלפת `public/images/app-icon.png`)
 - **בדיקת זמינות המודל:** `npm run check:model` (דורש מפתח ב־`backend/.env`)
+- **בדיקת האתר החי (ללא עלות):** `npm run check:live -- <כתובת>`; מול `npm run preview` מקומי מוסיפים `--skip-headers`
+- **פריסה:** Push ל־`main` מפרסם אוטומטית ל־Production ב־Vercel — מריצים את כל הבדיקות לפני כל Push. כתובת Production: <תתווסף אחרי הפריסה הראשונה>

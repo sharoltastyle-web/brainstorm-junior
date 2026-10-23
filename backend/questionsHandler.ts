@@ -1,8 +1,8 @@
-import { MAX_BODY_BYTES } from './config.ts';
-import { hasOpenAiKey } from './env.ts';
-import { createOpenAiClient, type AiClient } from './openaiClient.ts';
-import { questionRequestSchema, type QuestionResponse } from './questionSchema.ts';
-import { generateTriviaQuestion, type TriviaErrorCode } from './triviaService.ts';
+import { MAX_BODY_BYTES } from './config.js';
+import { hasOpenAiKey } from './env.js';
+import { createOpenAiClient, type AiClient } from './openaiClient.js';
+import { questionRequestSchema, type QuestionResponse } from './questionSchema.js';
+import { generateTriviaQuestion, type TriviaErrorCode } from './triviaService.js';
 
 export { MAX_BODY_BYTES };
 

@@ -10,12 +10,12 @@ import {
   unclearTopic,
   unsuitableTopic,
   validOutput,
-} from './fixtures/modelOutputs.ts';
-import { AiError, toAiError } from './openaiClient.ts';
-import { fakeAi } from './testing/fakeAi.ts';
-import { generateTriviaQuestion, shuffleQuestion } from './triviaService.ts';
-import { normalizeForCompare, validQuestionSchema } from './questionSchema.ts';
-import { buildUserInput } from './prompts.ts';
+} from './fixtures/modelOutputs.js';
+import { AiError, toAiError } from './openaiClient.js';
+import { fakeAi } from './testing/fakeAi.js';
+import { generateTriviaQuestion, shuffleQuestion } from './triviaService.js';
+import { normalizeForCompare, validQuestionSchema } from './questionSchema.js';
+import { buildUserInput } from './prompts.js';
 
 describe('generateTriviaQuestion', () => {
   it('returns a valid, shuffled question whose correct id points at the right answer', async () => {

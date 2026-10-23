@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MAX_PREVIOUS_QUESTIONS } from './config.ts';
+import { MAX_PREVIOUS_QUESTIONS } from './config.js';
 
 export const AGE_GROUPS = ['6-8', '9-12'] as const;
 export type AgeGroup = (typeof AGE_GROUPS)[number];
