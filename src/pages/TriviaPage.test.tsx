@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CLIENT_TIMEOUT_MS } from '../api/questionsApi';
 import { renderApp } from '../test/renderApp';
@@ -233,5 +233,51 @@ describe('failures', () => {
     vi.useRealTimers();
     expect(await screen.findByRole('alert')).toHaveTextContent('משהו השתבש. נסו שוב.');
     expect(screen.queryByText('מכינים לך שאלה...')).toBeNull();
+  });
+});
+
+describe('long content', () => {
+  it('shows a long question, answers and explanation in full, with the continue button', async () => {
+    const longWord = 'מילהארוכהמאודבליריווחיםבכלל'.repeat(3);
+    const long = {
+      ...QUESTION,
+      prompt: 'איזו מהחיות הבאות יכולה לחיות הכי הרבה שנים, גם במים קרים מאוד בעומק האוקיינוס וגם במים חמים ליד החוף?',
+      options: [
+        { id: 'a', text: 'צב ענק מאיי גלפגוס שחי על היבשה ואוכל צמחים' },
+        { id: 'b', text: longWord },
+        { id: 'c', text: 'כריש גרינלנד שחי במים קרים מאוד וגדל לאט' },
+        { id: 'd', text: 'דולפין' },
+      ],
+      explanation:
+        'כריש גרינלנד גדל לאט מאוד וחי במים קרים, ולכן הוא יכול לחיות מאות שנים — יותר מכל חיה אחרת עם עמוד שדרה שאנחנו מכירים.',
+    };
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(long));
+    await startTrivia();
+    await userEvent.click(askButton());
+    expect(await screen.findByRole('heading', { name: long.prompt })).toBeInTheDocument();
+    for (const option of long.options) expect(screen.getByRole('radio', { name: option.text })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('radio', { name: long.options[1].text }));
+    expect(document.body).toHaveTextContent(long.explanation);
+    expect(document.body).toHaveTextContent(`התשובה הנכונה היא: ${long.options[2].text}`);
+    expect(screen.getByRole('button', { name: 'עוד שאלה באותו נושא' })).toBeInTheDocument();
+  });
+});
+
+describe('small screens', () => {
+  it('scrolls the feedback and continue button into view after answering', async () => {
+    const scrollSpy = vi.fn();
+    Element.prototype.scrollIntoView = scrollSpy;
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(QUESTION));
+    await startTrivia();
+    await userEvent.click(askButton());
+    await screen.findByRole('heading', { name: QUESTION.prompt });
+    expect(scrollSpy).not.toHaveBeenCalled();
+
+    await userEvent.click(answers()[0]);
+    await waitFor(() => expect(scrollSpy).toHaveBeenCalled());
+    const target = scrollSpy.mock.contexts[0] as HTMLElement;
+    expect(target).toHaveTextContent('עוד שאלה באותו נושא');
+    expect(target).toHaveTextContent(QUESTION.explanation);
   });
 });

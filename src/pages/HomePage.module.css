@@ -103,3 +103,16 @@
   font: var(--text-label);
   text-align: center;
 }
+
+/* Short phones (e.g. iPhone SE): shrink the artwork so age choice and the start button
+   are visible above the bottom navigation without scrolling. */
+@media (max-height: 740px) {
+  .logoHeading img {
+    max-width: 240px;
+  }
+
+  .hero {
+    max-height: 200px;
+    object-fit: cover;
+  }
+}

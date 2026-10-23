@@ -112,7 +112,7 @@ M2–M4 הם Vertical Slices של יכולות משתמש, עם UI, לוגיקה
 - [ ] שינוי גיל, ניווט לאודות וחזרה ורענון מתנהגים לפי המקורות; אין אחסון משחק ב־localStorage, sessionStorage, IndexedDB או Cookie.
 - [ ] בדיקות Vitest לתרחישים לעיל ובדיקות M2 עוברות.
 
-## M4 — PWA ומעטפת Offline
+## M4 — PWA ומעטפת Offline ✅
 
 ### שם ומטרה
 

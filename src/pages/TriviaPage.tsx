@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import { useEffect, useRef, type FormEvent } from 'react';
 import { AnswerOptions } from '../components/AnswerOptions';
 import { Button } from '../components/Button';
 import { FeedbackCard } from '../components/FeedbackCard';
@@ -6,6 +6,8 @@ import { useGame } from '../state/GameContext';
 import styles from './TriviaPage.module.css';
 
 const MAX_TOPIC_LENGTH = 120;
+const SCROLL_DELAY_MS = 150;
+const SCROLL_FALLBACK_MS = 1000;
 
 export function TriviaPage() {
   const {
@@ -23,6 +25,22 @@ export function TriviaPage() {
   const answered = status === 'answered' && question !== null && selectedOptionId !== null;
   const isCorrect = answered ? selectedOptionId === question.correctOptionId : null;
   const correctAnswer = question?.options.find((option) => option.id === question.correctOptionId)?.text ?? '';
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // On small screens the feedback appears below the fold; bring it (and the continue button) into view.
+  useEffect(() => {
+    if (!answered) return;
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const scroll = (behavior: ScrollBehavior) => resultRef.current?.scrollIntoView?.({ behavior, block: 'nearest' });
+    // Deferred: a smooth scroll started while the tap/click is still being handled gets cancelled by the browser.
+    const smooth = setTimeout(() => scroll(reduceMotion ? 'auto' : 'smooth'), SCROLL_DELAY_MS);
+    // Fallback: if the smooth scroll was interrupted anyway, jump there. 'nearest' does nothing when already in view.
+    const fallback = setTimeout(() => scroll('auto'), SCROLL_FALLBACK_MS);
+    return () => {
+      clearTimeout(smooth);
+      clearTimeout(fallback);
+    };
+  }, [answered]);
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -83,7 +101,7 @@ export function TriviaPage() {
             />
             {/* The solution and explanation are rendered only after answering. */}
             {answered && isCorrect !== null && (
-              <>
+              <div ref={resultRef} className={styles.result}>
                 <FeedbackCard
                   isCorrect={isCorrect}
                   correctAnswer={correctAnswer}
@@ -97,7 +115,7 @@ export function TriviaPage() {
                 >
                   עוד שאלה באותו נושא
                 </Button>
-              </>
+              </div>
             )}
           </div>
         )}

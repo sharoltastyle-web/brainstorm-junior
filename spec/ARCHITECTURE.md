@@ -272,3 +272,20 @@ GPT-5.4 mini בתעריף Standard: 0.75 דולר למיליון input tokens ו
 - שינוי בכללי הנרמול מחייב עדכון בשני הקבצים.
 - שאלה זהה בניסוח שונה עדיין עשויה לחזור (מגבלה ידועה מ־ADR-1).
 - `navigator.onLine` אינו מבטיח חיבור אמיתי; במקרה כזה כשל הרשת מסתיים בהודעה הכללית.
+
+### ADR-5: פרטי מימוש של ה־PWA ב־M4
+
+**הקשר:** ב־M4 נדרשו החלטות שה־Architecture לא קבע במדויק: איך מתבצע עדכון גרסה בלי reload כפוי, איך נוצרים האייקונים, אילו קבצים נכנסים ל־Precache, והאם ה־Service Worker פעיל בפיתוח. בנוסף התגלה שבשרת `vite preview` (שרץ עם `NODE_ENV=production`) המפתח מ־`backend/.env` לא נטען.
+
+**החלטה:**
+1. `vite-plugin-pwa` במצב `generateSW` עם `registerType: 'prompt'` **ללא ממשק עדכון** ובלי `skipWaiting`/`clientsClaim`: גרסה חדשה מותקנת ברקע וממתינה עד שכל לשוניות האפליקציה נסגרות. אין הודעת „יש עדכון” — רכיב שאינו במקורות.
+2. האייקונים נוצרים פעם אחת מ־`public/images/app-icon.png` באמצעות `@vite-pwa/assets-generator` (`npm run icons`, תצורה ב־`pwa-assets.config.ts`) ונשמרים ב־Git לצד המקור ב־`public/images/`. לאייקון ה־maskable ול־Apple אין שוליים נוספים, כי לאייקון המקורי רקע מלא והאיור בתוך האזור הבטוח.
+3. Precache: כל קובצי `js`, `css`, `html`, `png`, `ico`, `webmanifest` ו־`woff2` מ־`dist/` (כולל כל ה־subsets של הגופנים), למעט `app-icon.png` בגודל 1024 שאינו נטען באפליקציה. מגבלת הגודל לקובץ הוגדלה ל־3 MB בשביל `background.png`. סה"כ כ־4 MB.
+4. `/api/` מוחרג מ־`navigateFallback` ומוגדר `NetworkOnly` במפורש (GET ו־POST).
+5. ה־Service Worker כבוי ב־`npm run dev`; ה־PWA נבדק רק ב־`npm run build` + `npm run preview`. הבדיקה האוטומטית `npm run check:pwa` מאמתת את ה־Manifest, רשימת ה־Precache וחוקי ה־API ב־`dist/`.
+6. `loadServerEnv` מדלג על `backend/.env` רק כשמשתנה `VERCEL` מוגדר (במקום `NODE_ENV=production`), כך ש־`vite preview` המקומי מקבל את המפתח, וב־Vercel המפתח מגיע מהגדרות הפלטפורמה.
+
+**השלכות:**
+- משתמש שמשאיר את האפליקציה פתוחה זמן רב יקבל גרסה חדשה רק אחרי סגירה ופתיחה מחדש.
+- החלפת `images/app-icon.png` מחייבת העתקה ל־`public/images/` והרצת `npm run icons`.
+- הורדה ראשונה של כ־4 MB לשמירה במכשיר; ניתן לצמצם בעתיד ל־subsets העברית והלטינית בלבד או לדחוס את התמונות.

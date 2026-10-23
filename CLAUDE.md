@@ -58,5 +58,7 @@
 ## פקודות הרצה
 > Claude ממלא זאת ברגע שהאפליקציה יכולה לרוץ (בדרך כלל בסיום Milestone 1), ומעדכן אם משהו משתנה.
 - **הרצה (dev):** `npm run dev` (http://localhost:5173)
-- **בדיקות (test):** `npm test` (וגם `npm run typecheck`, `npm run lint`, `npm run build`, `npm run check:bundle`)
+- **הרצת Build מקומי עם PWA:** `npm run build` ואז `npm run preview` (http://localhost:4173); ה־Service Worker פעיל רק כאן, לא ב־dev
+- **בדיקות (test):** `npm test` (וגם `npm run typecheck`, `npm run lint`, `npm run build`, `npm run check:bundle`, `npm run check:pwa`)
+- **יצירת אייקונים מחדש:** `npm run icons` (אחרי החלפת `public/images/app-icon.png`)
 - **בדיקת זמינות המודל:** `npm run check:model` (דורש מפתח ב־`backend/.env`)

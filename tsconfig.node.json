@@ -15,5 +15,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["vite.config.ts", "backend", "api"]
+  "include": ["vite.config.ts", "pwa-assets.config.ts", "backend", "api"]
 }
