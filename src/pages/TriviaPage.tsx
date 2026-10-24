@@ -26,6 +26,7 @@ export function TriviaPage() {
   const isCorrect = answered ? selectedOptionId === question.correctOptionId : null;
   const correctAnswer = question?.options.find((option) => option.id === question.correctOptionId)?.text ?? '';
   const resultRef = useRef<HTMLDivElement>(null);
+  const topicRef = useRef<HTMLInputElement>(null);
 
   // On small screens the feedback appears below the fold; bring it (and the continue button) into view.
   useEffect(() => {
@@ -41,6 +42,14 @@ export function TriviaPage() {
       clearTimeout(fallback);
     };
   }, [answered]);
+
+  // Clears the field and brings it into view, so switching topics doesn't depend on scrolling up.
+  function switchTopic() {
+    setTopic('');
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo?.({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    topicRef.current?.focus({ preventScroll: true });
+  }
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -59,6 +68,7 @@ export function TriviaPage() {
           <div className={styles.topicRow}>
             <input
               id="topic"
+              ref={topicRef}
               className={styles.topicInput}
               type="text"
               value={topic}
@@ -114,6 +124,9 @@ export function TriviaPage() {
                   onClick={() => void requestMoreSameTopic()}
                 >
                   עוד שאלה באותו נושא
+                </Button>
+                <Button variant="secondary" fullWidth className={styles.moreButton} onClick={switchTopic}>
+                  מעבר לנושא הבא
                 </Button>
               </div>
             )}

@@ -335,3 +335,23 @@ describe('navigation, refresh and storage', () => {
     }
   });
 });
+
+describe('switching to the next topic', () => {
+  it('appears only after answering, clears and focuses the topic field without a new request', async () => {
+    const { spy } = mockQuestions(makeQuestion(1), makeQuestion(2));
+    await startTrivia();
+    await askTopic('חלל');
+    await expectShown(makeQuestion(1).prompt);
+    expect(screen.queryByRole('button', { name: 'מעבר לנושא הבא' })).toBeNull();
+
+    await answerFirst();
+    await userEvent.click(screen.getByRole('button', { name: 'מעבר לנושא הבא' }));
+    expect(topicInput()).toHaveValue('');
+    expect(topicInput()).toHaveFocus();
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    await userEvent.type(topicInput(), 'דינוזאורים');
+    await userEvent.click(askButton());
+    await expectShown(makeQuestion(2).prompt);
+  });
+});
